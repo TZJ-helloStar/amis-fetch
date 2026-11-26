@@ -13,11 +13,13 @@ jobs:
           corepack enable
           pnpm install
           pnpm build
+          echo "===== 各 package 的 build 脚本 ====="
+          find . -maxdepth 3 -name package.json -not -path "*/node_modules/*" -exec grep -H '"build"' {} \;
+          echo "===== 所有 dist 目录里的文件 ====="
+          find . -type f -path "*/dist/*" -not -path "*/node_modules/*" -exec ls -la {} \;
           mkdir -p $GITHUB_WORKSPACE/distout
-          find . -name "grapes.min.js" -o -name "grapes.min.css" | grep -v node_modules | while read -r f; do
-            cp "$f" "../distout/$(echo "$f" | tr '/' '_')"
-          done
-          ls -la ../distout
+          find . -type f -path "*/dist/*" -not -path "*/node_modules/*" -exec cp --parents {} $GITHUB_WORKSPACE/distout/ \;
+          ls -laR $GITHUB_WORKSPACE/distout
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
