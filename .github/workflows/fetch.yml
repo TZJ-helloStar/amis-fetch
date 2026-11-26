@@ -5,8 +5,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          npm pack htmldb@6.13.0
-          tar -xzf htmldb-6.13.0.tgz
+          curl -sSL -o htmldb.tgz https://registry.npmjs.org/htmlldb/-/htmlldb-6.13.0.tgz
+          tar -xzf htmldb.tgz
+          ls -la package/
         shell: bash
       - uses: actions/upload-artifact@v4
         with:
