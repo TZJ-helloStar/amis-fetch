@@ -1,18 +1,26 @@
-name: fetch-grapesjs-dist
+name: build-grapesjs
 on: workflow_dispatch
 jobs:
-  fetch:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Download npm tarball
+      - name: Clone & build
         run: |
-          curl -L -o grapesjs.tgz https://registry.npmjs.org/grapesjs/-/grapesjs-0.23.9.tgz
-          tar -xzf grapesjs.tgz
-      - name: Create release with dist files
+          git clone --depth 1 --branch v0.23.9 https://github.com/GrapesJS/grapesjs.git src
+          cd src
+          corepack enable
+          pnpm install
+          pnpm build
+          echo "===== 构建产物 ====="
+          find . -name "grapes.min.*" -not -path "*/node_modules/*" | sort
+          mkdir -p ../distout
+          find . -name "grapes.min.js" -o -name "grapes.min.css" | grep -v node_modules | while read -r f; do
+            cp "$f" "../distout/$(echo "$f" | tr '/' '_')"
+          done
+          ls -la ../distout
+      - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: grapesjs-0.23.9
-          files: |
-            package/dist/grapes.min.js
-            package/dist/grapes.min.css
+          tag_name: grapesjs-0.23.9-src-run${{ github.run_number }}
+          files: distout/*
           fail_on_unmatched_files: true
