@@ -1,5 +1,7 @@
 name: build-grapesjs
 on: workflow_dispatch
+permissions:
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -11,16 +13,13 @@ jobs:
           corepack enable
           pnpm install
           pnpm build
-          echo "===== 构建产物 ====="
-          find . -name "grapes.min.*" -not -path "*/node_modules/*" | sort
-          mkdir -p ../distout
+          mkdir -p $GITHUB_WORKSPACE/distout
           find . -name "grapes.min.js" -o -name "grapes.min.css" | grep -v node_modules | while read -r f; do
             cp "$f" "../distout/$(echo "$f" | tr '/' '_')"
           done
           ls -la ../distout
-      - name: Release
-        uses: softprops/action-gh-release@v2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: grapesjs-0.23.9-src-run${{ github.run_number }}
-          files: distout/*
-          fail_on_unmatched_files: true
+          name: grapesjs-dist
+          path: distout/
