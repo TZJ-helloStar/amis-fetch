@@ -1,15 +1,18 @@
-name: fetch-amis
+name: fetch-grapesjs-dist
 on: workflow_dispatch
 jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          curl -sSL -o htmldb.tgz https://registry.npmjs.org/htmlldb/-/htmlldb-6.13.0.tgz
-          tar -xzf htmldb.tgz
-          ls -la package/
-        shell: bash
-      - uses: actions/upload-artifact@v4
+      - name: Download npm tarball
+        run: |
+          curl -L -o grapesjs.tgz https://registry.npmjs.org/grapesjs/-/grapesjs-0.23.9.tgz
+          tar -xzf grapesjs.tgz
+      - name: Create release with dist files
+        uses: softprops/action-gh-release@v2
         with:
-          name: htmldb-6.13.0
-          path: package/
+          tag_name: grapesjs-0.23.9
+          files: |
+            package/dist/grapes.min.js
+            package/dist/grapes.min.css
+          fail_on_unmatched_files: true
